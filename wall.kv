@@ -1,0 +1,67 @@
+#:kivy 1.9
+#:import LinearRecycleLayoutManager recycleview.LinearRecycleLayoutManager
+
+<ImagePost>:
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+
+    Label:
+        id: timestamp
+        text: self.parent.timestamp + '\n' + self.parent.from_person
+        #text: root.timestamp
+        pos_hint: {'center_x': 1.0/6}
+    AsyncImage:
+        id: content
+        pos_hint: {'center_x': 2.0/3, 'center_y': .5}
+        size_hint: (1, 0.9)
+        allow_stretch: True
+        source: root.image_path
+
+<TextPost>:
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+
+    Label:
+        id: timestamp
+        text: self.parent.timestamp + '\n' + self.parent.from_person
+        pos_hint: {'center_x': 1.0/6, 'center_y': .5}
+        size_hint: (1, 0.9)
+    Label:
+        id: content
+        pos_hint: {'center_x': 2.0/3}
+        text_size: self.parent.width/2.0, None
+        text: root.label_text
+
+<PostWall>:
+    id: rv
+    layout_manager: LinearRecycleLayoutManager(orientation="vertical", default_size=root.height/5, key_size='height')
+    key_viewclass: 'viewclass'
+
+    canvas.before:
+        Color:
+            rgb: (1, 0, 0)
+        Rectangle:
+            pos: self.width*2.0/3-1, 0
+            size: 3, self.height
+        Rectangle:
+            pos: self.width*1.0/3-1, 0
+            size: 3, self.height
+        Color:
+            rgb: (1, 0, 0)
+        Rectangle:
+            pos: self.width*2.0/3-1, 0
+            size: 3, self.height
+        Rectangle:
+            pos: 0, self.center_y - 1
+            size: self.width, 3
+        Color:
+            rgb: (0, 0, 1)
+        Rectangle:
+            pos: self.width*1.0/6, 0
+            size: 1, self.height
