@@ -17,7 +17,7 @@
         id: content
         pos_hint: {'center_x': 2.0/3, 'center_y': .5}
         size_hint: (1, 0.9)
-        allow_stretch: True
+        allow_stretch: False
         source: root.image_path
 
 <TextPost>:
@@ -65,3 +65,11 @@
         Rectangle:
             pos: self.width*1.0/6, 0
             size: 1, self.height
+
+<PostCarousel>:
+    id: car
+    #canvas.before:
+    #    Color:
+    #        rgb: (1, 1, 1)
+    #    Rectangle:
+    #        size: self.width, self.height

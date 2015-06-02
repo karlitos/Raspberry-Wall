@@ -15,11 +15,7 @@ IMAGES = []
 for extension in IMAGE_EXTENSIONS:
     IMAGES.extend(glob(join(dirname(__file__), 'media') + '/*.' + extension))
 
-print IMAGES
-
 NUMBER_OF_POSTS = 50
-
-print IMAGES
 
 
 def generate_new_data():

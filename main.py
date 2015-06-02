@@ -1,14 +1,18 @@
 from recycleview import RecycleView
 import post_generator
-from kivy.properties import ListProperty, BooleanProperty, ObjectProperty
-from kivy.properties import StringProperty
+from kivy.properties import ListProperty, BooleanProperty, ObjectProperty, StringProperty
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.image import Image, CoreImage, AsyncImage
+from kivy.uix.label import Label
+from kivy.loader import Loader
 from kivy.core.window import Window
+from kivy.uix.carousel import Carousel
+from kivy.uix.screenmanager import ScreenManager, Screen, RiseInTransition
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.animation import Animation
-import random
-import time
+
+Loader.loading_image = 'loading_animation.gif'
 
 
 class ImagePost(RelativeLayout):
@@ -39,7 +43,6 @@ class PostWall(RecycleView):
             return
         self._keyboard.bind(on_key_down=self.on_keyboard_down)
 
-        self.data = post_generator.generate_new_data()
         self.movement_flag = False
 
     def _keyboard_closed(self):
@@ -51,7 +54,7 @@ class PostWall(RecycleView):
             self.movement_flag = False
 
         key = keycode[1]
-        #print 'keyboard', key, text
+        print 'keyboard', key, text
 
         if (key == 'up' or key == 'down') and not self.movement_flag:
             computed_positions = self.current_layout_manager.computed_positions
@@ -79,13 +82,16 @@ class PostWall(RecycleView):
             animation = Animation(background_color=[0, 0, .5, .7],  duration=.2)
             animation.start(next_selected_widget)
             self.selected_post_index = next_index
-
+        elif key == 'enter':
+            # usage of an id will be wiser
+            self.parent.parent.current = 'Post carousel'
         elif key == 'q':
             App.get_running_app().stop()
             return True
 
     def compute_vertical_scroll_distance(self, scrollview, computed_positions, post_index):
         # compute the relative distance
+        print 'Scrollview height', scrollview.height
         scroll_dist = (scrollview.height - computed_positions[post_index] - computed_positions[post_index + 1])/2
         return 1 + scrollview.convert_distance_to_scroll(0, scroll_dist)[1]
 
@@ -94,8 +100,10 @@ class PostWall(RecycleView):
         # we scroll to the first post and place it in the middle of the screen
         self.selected_post_index = 0
         computed_positions = self.current_layout_manager.computed_positions
+        print 'Computed positions', computed_positions
         # compute the relative vertical scrolling distance
         scroll_dist = self.compute_vertical_scroll_distance(scrollview, computed_positions, self.selected_post_index)
+        print 'Scroll distance', scroll_dist
         scrollview.scroll_y = scroll_dist
         #scrollview._scroll_y_mouse = scroll_dist
         #scrollview._update_effect_y_bounds()
@@ -106,10 +114,55 @@ class PostWall(RecycleView):
         selected_widget.background_color = [0, 0, .5, .7]
 
 
+class PostCarousel(Carousel):
+    def __init__(self, **kwargs):
+        super(PostCarousel, self).__init__(**kwargs)
+
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        if not self._keyboard:
+            return
+        self._keyboard.bind(on_key_down=self.on_keyboard_down)
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self.on_keyboard_down)
+        self._keyboard = None
+
+    def on_keyboard_down(self, keyboard, keycode, text, modifiers):
+
+        key = keycode[1]
+        print 'keyboard 2', key, text
+
+        if key == 'up':
+            self.load_previous()
+        elif key == 'down':
+            self.load_next()
+
+
+
 class WallApp(App):
+
     def build(self):
+        #root_widget = RootWidget()
+        # Create the manager
+        sm = ScreenManager(transition=RiseInTransition())
         wall = PostWall()
-        Clock.schedule_once(wall.center_first_post, 0)
-        return wall
+        wall_screen = Screen(name='Post wall')
+        wall_screen.add_widget(wall)
+        sm.add_widget(wall_screen)
+        carousel = PostCarousel(loop='false')
+        carousel_screen = Screen(name='Post carousel')
+        carousel_screen.add_widget(carousel)
+        sm.add_widget(carousel_screen)
+        # generate new data
+        data = post_generator.generate_new_data()
+        wall.data = data
+        for item in data:
+            if 'ImagePost' in item['viewclass']:
+                carousel.add_widget(Image(source=item['image_path']))
+            elif 'TextPost' in item['viewclass']:
+                carousel.add_widget(Label(text=item['label_text']))
+        Clock.schedule_once(wall.center_first_post, 0.2)
+       # Clock.schedule_once(self.change_to_carousel, 5)
+        return sm
 
 WallApp().run()
