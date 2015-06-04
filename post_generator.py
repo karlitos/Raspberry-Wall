@@ -24,7 +24,7 @@ def generate_new_data():
             post = random.choice(['image', 'text'])
             if 'image' in post:
                 posts.append({
-                    'viewclass': 'ImagePost',
+                    'viewclass': 'ImageWallPost',
                     'image_path': random.choice(IMAGES),
                     'timestamp': '{}.  '.format(x) + time.asctime(),
                     'from_person': random.choice(PERSONS),
@@ -32,7 +32,7 @@ def generate_new_data():
                 })
             else:
                 posts.append({
-                    'viewclass': 'TextPost',
+                    'viewclass': 'TextWallPost',
                     'label_text': TEXT[0:random.randint(10, len(TEXT))],
                     'timestamp': '{}.  '.format(x) + time.asctime(),
                     'from_person': random.choice(PERSONS),

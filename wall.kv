@@ -1,7 +1,7 @@
 #:kivy 1.9
 #:import LinearRecycleLayoutManager recycleview.LinearRecycleLayoutManager
 
-<ImagePost>:
+<ImageWallPost>:
     canvas.before:
         Color:
             rgba: root.background_color
@@ -20,7 +20,7 @@
         allow_stretch: False
         source: root.image_path
 
-<TextPost>:
+<TextWallPost>:
     canvas.before:
         Color:
             rgba: root.background_color
@@ -37,6 +37,10 @@
         pos_hint: {'center_x': 2.0/3}
         text_size: self.parent.width/2.0, None
         text: root.label_text
+
+<ImageFullPost>:
+
+<TextFullPost>:
 
 <PostWall>:
     id: rv
@@ -66,21 +70,23 @@
             pos: self.width*1.0/6, 0
             size: 1, self.height
 
-<PostCarousel>:
-    id: car
+<FullView>:
+    id: fv
+    layout_manager: LinearRecycleLayoutManager(orientation="vertical", default_size=root.height)
+    key_viewclass: 'viewclass'
     #canvas.before:
     #    Color:
-    #        rgb: (1, 1, 1)
+    #        rgb: (0, 0, .5)
     #    Rectangle:
     #        size: self.width, self.height
 
 <PostScreenManager>:
     id: sm
     Screen:
+        name: 'Post screen'
+        FullView:
+            id: fp # aka full posts
+    Screen:
         name: 'Wall screen'
         PostWall:
             id: pw
-    Screen:
-        name: 'Carousel screen'
-        PostCarousel:
-            id: pc
